@@ -1,5 +1,5 @@
 # NeoPixel-Stair
-Stair LedLights, using NeoPixel Ledstrips and an Arduino
+Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 
 ## Functions:
 - drives a configurable number of led-strips (one ledstrip per step)
