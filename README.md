@@ -37,9 +37,11 @@ int keepLedsOffTime=1500;         // keep leds off for at least .. msec.
 ```
 
 
+
+
 ## NeoPixel-Breathing-Rings - functions
 Just a cool script to smoothly brighten and soften the leds in a nice color.
-I 2 NeoPixel rings with 60 leds each and used a blue calm color... but change it to your needs of course...
+I used 2 NeoPixel rings with 60 leds each and used a blue calm color... but change it to your needs of course...
 
 ```javascript
 // Which pin on the Arduino is connected to the NeoPixels?
@@ -50,3 +52,6 @@ I 2 NeoPixel rings with 60 leds each and used a blue calm color... but change it
 #define LEDSPERRING       60      // Number of Pixels per ring
 #define NUMPIXELS         NUMBEROFRING*LEDSPERRING 
 ```
+
+
+
