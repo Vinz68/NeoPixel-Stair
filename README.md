@@ -1,7 +1,7 @@
-# NeoPixel-Stair & NeoPixel-Breathing-Rings
+# NeoPixel-Stairs & NeoPixel-BreathingRings
 2 Arduino programs for the NeoPixel led strips and rings.
 
-## NeoPixel-Stair - functions
+## NeoPixel-Stairs - functions
 Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 
 - drives a configurable number of led-strips (one ledstrip per step)
@@ -43,7 +43,7 @@ int LDRSensor = A0;               // Light dependent resistor, Analog Input line
 
 
 
-## NeoPixel-Breathing-Rings - functions
+## NeoPixel-BreathingRings - functions
 Just a cool script to smoothly brighten and soften the leds in a nice color.
 I used 2 NeoPixel rings with 60 leds each and used a blue calm color... but change it to your needs of course...
 
