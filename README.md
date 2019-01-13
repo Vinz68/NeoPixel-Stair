@@ -6,10 +6,9 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 
 - drives a configurable number of led-strips (one ledstrip per step)
 - with configurable number of leds per strip
-- has a nice "breathe" function when stairs are not used (smoothly up and down of first and last led of each led-strip ; configurable also)
 - switches on or off in top-down or bottop-top direction
 - supports a Light dependent resistor (LDR), when enabled led lights only turned on when dark enough
-  
+- has a nice "breathe" function when stairs are not used (smoothly up and down of intensity of each led-strip ; configurable also)  
 
 ### Configuration
 

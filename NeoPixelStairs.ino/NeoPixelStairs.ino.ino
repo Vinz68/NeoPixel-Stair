@@ -111,8 +111,6 @@ void loop() {
     // For finetuning, show the LDR value, so the LDRThreshold can be determined ; once it works disable the next statement with '//'
     // Serial.println(LDRValue); 
 
-    readPIRInputs = false;
-
     // Only switch on LED's at night when LDR senses low light conditions 
     if (LDRValue < LDRThreshold) {   
       // There is enough light, the stairs/ledstips will not be activated
@@ -126,8 +124,8 @@ void loop() {
 
   // Read the PIR inputs 
   if (readPIRInputs) {
-  //  alarmValueTop = digitalRead(alarmPinTop); // Constantly poll the PIR at the top of the stairs
-  //  alarmValueBottom = digitalRead(alarmPinBottom); // Constantly poll the PIR at the bottom of the stairs
+    alarmValueTop = digitalRead(alarmPinTop); // Constantly poll the PIR at the top of the stairs
+    alarmValueBottom = digitalRead(alarmPinBottom); // Constantly poll the PIR at the bottom of the stairs
   }
   
   // Check if PIR Top was triggered an leds must be turned on
