@@ -15,6 +15,8 @@
 // How many NeoPixels are attached to the Arduino ?
 #define LEDSPERSTRIP    36        // Number of leds per strip
 #define LEDSTRIPS       16        // Number of stair steps (led strips)
+
+
 #define NUMPIXELS       LEDSTRIPS*LEDSPERSTRIP 
 #define BREATHELEDS     1         // Number of leds used in breathe function. 
                                   // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
@@ -75,6 +77,7 @@ void setup() {
   clearStrip();             // Initialize all pixels to 'off', and do strip.show()
   
   Serial.begin (9600);      // only required for debugging. Output some settings in the Serial Monitor Window 
+  Serial.println("-------------------------------------------------"); 
   Serial.print("NeoPixel used on outout-pin [");  
   Serial.print(PIN); 
   Serial.print("] with ");  
@@ -88,6 +91,16 @@ void setup() {
     LDRValue = analogRead(LDRSensor);
     Serial.println( LDRValue );
   }
+  if (BREATHELEDS>0) {
+        Serial.println("Breate effect is enabled, on each strip, on pixels:");
+        Serial.print("0 to ");
+        Serial.println(BREATHELEDS);
+        Serial.print("and ");
+        Serial.print(LEDSPERSTRIP-BREATHELEDS);
+        Serial.print(" up to ");
+        Serial.println(LEDSPERSTRIP-1);
+  }
+  Serial.println("-------------------------------------------------"); 
 
   // Configure the used digital input & output
   pinMode(ledPin, OUTPUT); // initilise the onboard pin 13 LED as an indicator
@@ -158,9 +171,9 @@ void loop() {
 
   // Enable Breathe Effect when needed.
   if (downUp==0) {          // Currently no activity on the stairs ? (in idle mode, not turned (or turning) on or off ?) 
-    if (readPIRInputs) {    // Also the PIR sensors are read (so when LDRs are enabled, then it is dark enough)
+    //if (readPIRInputs) {    // Enable "breathe" only when the it is dark enough (LDR value)
       handleBreathe();      // so....Enable the cool "breathe effect" of the led strip lights  
-    }
+    //}
   }
   else if (downUp==5) {     // eventually the stairs led lights will be turned off again (mode=5)
     delay(keepLedsOffTime); // allow small delay/pause and then activate the stairs again with the breathe and motion detection function
@@ -174,6 +187,8 @@ void handleBreathe() {
 
   // blue value changes
   breathe = breathe + change;
+
+  Serial.println("handleBreathe"); 
   
   // breathe the LED from 20 = off to 100 = fairly bright, change values if needed
   if ( (breathe >= 100 || breathe <= 20) ) {
@@ -200,15 +215,19 @@ void handleBreathe() {
       int endFirst = startFirst + BREATHELEDS;
 
       // Turn on first "BREATHELEDS" of each stripm with the breathe color.
+      Serial.println("Firsts:"); 
       for (uint16_t i = startFirst; i < endFirst; i++) {
+            Serial.println(i); 
             strip.setPixelColor(i, strip.Color(0,0,breathe));
       }
 
-      int startLast = ((NUMPIXELS/LEDSTRIPS) * k) + (LEDSTRIPS - BREATHELEDS) ;
-      int endLast= ((NUMPIXELS/LEDSTRIPS) * k) + BREATHELEDS;
+      int startLast = ((NUMPIXELS/LEDSTRIPS) * k) + (LEDSPERSTRIP - BREATHELEDS) ;
+      int endLast = startLast + BREATHELEDS;
 
       // Turn on last "BREATHELEDS" of each stripm with the breathe color.
+      Serial.println("Lasts:"); 
       for (uint16_t i = startLast; i < endLast; i++) {
+            Serial.println(i); 
             strip.setPixelColor(i, strip.Color(0,0,breathe));
       }
     }
