@@ -26,9 +26,6 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 ```
 
 
-
-
-
 ### Tuning
 ```javascript
 //-------------------------------------------------------------------------
@@ -46,6 +43,8 @@ bool useLDR = true;               // flag, when true the program uses the LDR, s
 int LDRSensor = A0;               // Light dependent resistor, Analog Input line 
 ```
 
+### Tip
+Using the Serial monitor, via tools->Serial monitor (or Ctl-Shift-M), you can view the serial output and verify your configuration.
 
 
 ## NeoPixel-BreathingRings - functions
