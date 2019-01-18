@@ -1,10 +1,10 @@
 # NeoPixel-Stairs & NeoPixel-BreathingRings
-2 Arduino programs for the NeoPixel led strips and rings.
+2 Arduino program sketches for the NeoPixel led strips and rings.
 
 ## NeoPixel-Stairs - functions
 Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 
-- drives a configurable number of led-strips (one ledstrip per step)
+- drives a configurable number of led-strips (one ledstrip per stair step)
 - with configurable number of leds per strip
 - switches on or off in top-down or bottop-top direction
 - supports a Light dependent resistor (LDR), when enabled led lights only turned on when dark enough
@@ -20,7 +20,13 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 // How many NeoPixels are attached to the Arduino?
 #define LEDSPERSTRIP    36       // Number of leds per strip
 #define LEDSTRIPS       16       // Number of stair steps (led strips)
+#define BREATHELEDS     1         // Number of leds used in breathe function. 
+                                  // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
+                                  //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
 ```
+
+
+
 
 
 ### Tuning

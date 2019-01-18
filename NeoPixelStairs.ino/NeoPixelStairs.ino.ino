@@ -13,14 +13,13 @@
 #define PIN             5         // Pin used for the NeoPixels
 
 // How many NeoPixels are attached to the Arduino ?
-#define LEDSPERSTRIP    36        // Number of leds per strip
 #define LEDSTRIPS       16        // Number of stair steps (led strips)
-
+#define LEDSPERSTRIP    36        // Number of leds per strip
 
 #define NUMPIXELS       LEDSTRIPS*LEDSPERSTRIP 
 #define BREATHELEDS     1         // Number of leds used in breathe function. 
                                   // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
-                                  //        so with setting = "1", the first and last led of the ledstrip would be used  for the breathe function.
+                                  //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
                                   // NOTE:  Minimal value = 0       (= no breathe function)
                                   //        Maximum value = LEDSPERSTRIP / 2  (= all leds used in the breathe function)
 
@@ -81,8 +80,12 @@ void setup() {
   Serial.print("NeoPixel used on outout-pin [");  
   Serial.print(PIN); 
   Serial.print("] with ");  
-  Serial.print(NUMPIXELS ); 
+  Serial.print(NUMPIXELS); 
   Serial.println(" Pixels"); 
+  Serial.print("Number of LED-strips: ");
+  Serial.println(LEDSTRIPS); 
+  Serial.print("Number of LEDs per strip: ");
+  Serial.println(LEDSPERSTRIP); 
   if (useLDR) {
     Serial.print("LDR used on analog input pin [");
     Serial.print(LDRSensor);
@@ -92,10 +95,10 @@ void setup() {
     Serial.println( LDRValue );
   }
   if (BREATHELEDS>0) {
-        Serial.println("Breate effect is enabled, on each strip, on pixels:");
+        Serial.println("Breathe effect is enabled, on each strip, on pixels:");
         Serial.print("0 to ");
-        Serial.println(BREATHELEDS);
-        Serial.print("and ");
+        Serial.print(BREATHELEDS);
+        Serial.print(" and ");
         Serial.print(LEDSPERSTRIP-BREATHELEDS);
         Serial.print(" up to ");
         Serial.println(LEDSPERSTRIP-1);
