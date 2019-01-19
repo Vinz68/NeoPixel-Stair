@@ -7,8 +7,8 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 - drives a configurable number of led-strips (one ledstrip per stair step)
 - with configurable number of leds per strip
 - switches on or off in top-down or bottop-top direction
-- supports a Light dependent resistor (LDR), when enabled led lights only turned on when dark enough
-- has a nice "breathe" function when stairs are not used (smoothly up and down of intensity of each led-strip ; configurable also)  
+- supports a Light dependent resistor (LDR), when enabled (useLDR=true), led lights will not turned on during daylight.
+- has a nice "breathe" function when stairs are not used (smoothly up and down of intensity of each led-strip)  
 
 ### Configuration
 
@@ -23,11 +23,20 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 #define BREATHELEDS     1         // Number of leds used in breathe function. 
                                   // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
                                   //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
+
+// Configuration of the Passive Infrared (PIR)
+int alarmPinTop = 10;             // PIR at the top of the stairs
+int alarmPinBottom = 11;          // PIR at the bottom of the stairs
+
+// Configuration of the Light dependent resistor (LDR)
+bool useLDR = true;               // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
+int LDRSensor = A0;               // Light dependent resistor, Analog Input line                                   
 ```
 
 
 ### Tuning
 ```javascript
+
 //-------------------------------------------------------------------------
 // Tuning part for the Breathe effect en turn-on and turn-off speed 
 //-------------------------------------------------------------------------
@@ -37,11 +46,8 @@ int turnOnSpeed     = 250;       // speed to turn on next led-strip, in msec bet
 int turnOffSpeed    = 100;       // speed to turn on next led-strip, in msec between next strip
 int keepLedsOnTime  = 18000;     // keep leds on for at least .. msec.
 int keepLedsOffTime = 1500;      // keep leds off for at least .. msec.
-
-// Configuration of the Light dependent resistor (LDR)
-bool useLDR = true;               // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
-int LDRSensor = A0;               // Light dependent resistor, Analog Input line 
 ```
+
 
 ### Tip
 Using the Serial monitor, via tools->Serial monitor (or Ctl-Shift-M), you can view the serial output and verify your configuration.
