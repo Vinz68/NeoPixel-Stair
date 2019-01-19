@@ -9,6 +9,8 @@
 #include <avr/power.h>
 #endif
 
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 // Configuration of the NeoPixel output
 #define PIN             5         // Pin used for the NeoPixels
 
@@ -25,19 +27,34 @@
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 // Configuration of the Passive Infrared (PIR)
 int alarmPinTop = 10;             // PIR at the top of the stairs
 int alarmPinBottom = 11;          // PIR at the bottom of the stairs
 int alarmValueTop = LOW;          // Variable to hold the PIR status
 int alarmValueBottom = LOW;       // Variable to hold the PIR status
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------
 // Configuration of the Light dependent resistor (LDR)
 bool useLDR = true;               // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
 int LDRSensor = A0;               // Light dependent resistor, Analog Input line 
-int LDRValue = 0;                 // Variable to hold the measured LDR value
-int LDRThreshold = 600;           // Only switch on LED's at night when LDR senses low light conditions - you may have to change this value for your circumstances!
+int LDRValue = 0;                 // Variable to hold the current measured LDR value
+int LDRThreshold = 750;           // Only switch on LED's at night when LDR senses low light conditions - you may have to change this value for your circumstances!
+
+// Define the number of samples to keep track of. The higher the number, the more the readings will be smoothed, but the slower the output will respond to the input. 
+// For our use case (determine the ammout of light) smoothing is good, so walk-by the LDR sensor or a sensor read spike is ingnored. 
+const int numReadings = 100;
+int readings[numReadings];      // the readings from the analog input
+int readIndex = 0;              // the index of the current reading
+int total = 0;                  // the running total
+int average = 0;                // the average
+// -------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 // Other Input/output
 int ledPin = 13;                  // LED on the arduino board flashes when PIR activated
@@ -74,6 +91,12 @@ void setup() {
   
   strip.setBrightness(35);  // Adjust brightness here
   clearStrip();             // Initialize all pixels to 'off', and do strip.show()
+
+    // Configure the used digital input & output
+  pinMode(ledPin, OUTPUT); // initilise the onboard pin 13 LED as an indicator
+  pinMode(alarmPinTop, INPUT_PULLUP); // for PIR at top of stairs initialise the input pin and use the internal restistor
+  pinMode(alarmPinBottom, INPUT_PULLUP); // for PIR at bottom of stairs initialise the input pin and use the internal restistor
+
   
   Serial.begin (9600);      // only required for debugging. Output some settings in the Serial Monitor Window 
   Serial.println("-------------------------------------------------"); 
@@ -87,12 +110,22 @@ void setup() {
   Serial.print("Number of LEDs per strip: ");
   Serial.println(LEDSPERSTRIP); 
   if (useLDR) {
+    // initialize all the LDR-readings to current values...
+    for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+      readings[thisReading] = analogRead(LDRSensor);
+      total = total + readings[thisReading];
+    }
+    // ... and calculate the average value of [numReadings] samples.
+    average = total / numReadings;
+
     Serial.print("LDR used on analog input pin [");
     Serial.print(LDRSensor);
     Serial.println("]");
-    Serial.print("LDR current value =");
-    LDRValue = analogRead(LDRSensor);
-    Serial.println( LDRValue );
+    Serial.print("LDR average value =");
+    Serial.print( average );
+    Serial.print(" Determine from number of samples: ");
+    Serial.println( numReadings );
+
   }
   if (BREATHELEDS>0) {
         Serial.print("Breathe effect is enabled, on each strip, on pixels: ");
@@ -112,10 +145,7 @@ void setup() {
   }
   Serial.println("-------------------------------------------------"); 
 
-  // Configure the used digital input & output
-  pinMode(ledPin, OUTPUT); // initilise the onboard pin 13 LED as an indicator
-  pinMode(alarmPinTop, INPUT_PULLUP); // for PIR at top of stairs initialise the input pin and use the internal restistor
-  pinMode(alarmPinBottom, INPUT_PULLUP); // for PIR at bottom of stairs initialise the input pin and use the internal restistor
+
 
   delay (2000); // it takes the sensor 2 seconds to scan the area around it before it can detect infrared presence.
 }
@@ -128,8 +158,9 @@ void loop() {
   // By default read the PIR inputs (unless LDR sensors are used and it is light enough...)
   readPIRInputs = true;
   if (useLDR) {
-    // Read the value of the Light Sensor
-    LDRValue = analogRead(LDRSensor);
+
+    // Read the (new) average value of the LDR (we use a sample array to filter out walk-by and sensor spikes)
+    LDRValue = readAverageLDR();
 
     // For finetuning, show the LDR value, so the LDRThreshold can be determined ; once it works disable the next statement with '//'
     // Serial.println(LDRValue); 
@@ -181,9 +212,12 @@ void loop() {
 
   // Enable Breathe Effect when needed.
   if (downUp==0) {          // Currently no activity on the stairs ? (in idle mode, not turned (or turning) on or off ?) 
-    //if (readPIRInputs) {    // Enable "breathe" only when the it is dark enough (LDR value)
+    if (readPIRInputs) {    // Enable "breathe" only when the it is dark enough (LDR value)
       handleBreathe();      // so....Enable the cool "breathe effect" of the led strip lights  
-    //}
+    } 
+    else {
+      clearStrip();	    // during daylight all leds turned off.
+    }
   }
   else if (downUp==5) {     // eventually the stairs led lights will be turned off again (mode=5)
     delay(keepLedsOffTime); // allow small delay/pause and then activate the stairs again with the breathe and motion detection function
@@ -191,17 +225,41 @@ void loop() {
   }
 }
 
+int readAverageLDR() {
 
+  // Subtract the last reading:
+  total = total - readings[readIndex];
+  
+  // Read the current value of the Light Sensor, and store in samples array
+  readings[readIndex] = analogRead(LDRSensor);
+
+  // Add the reading to the total:
+  total = total + readings[readIndex];
+  
+  // Advance to the next position in the array:
+  readIndex = readIndex + 1;
+
+  // If we're at the end of the array...
+  if (readIndex >= numReadings) {
+    // ...wrap around to the beginning:
+    readIndex = 0;
+  }
+
+  // Xalculate the average:
+  average = total / numReadings;
+
+  return (average);
+}
 
 void handleBreathe() {
 
-  // blue value changes
+  // Blue value changes
   breathe = breathe + change;
 
-  // breathe the LED from 20 = off to 100 = fairly bright, change values if needed
+  //Bbreathe the LED from 20 = off to 100 = fairly bright, change values if needed
   if ( (breathe >= 100 || breathe <= 20) ) {
   
-    change = -change;         // toggle the value to increase/decrease the breathe value
+    change = -change;         // Toggle the value to increase/decrease the breathe value
   
     timeTemp = millis();
     timeDiff = timeTemp - timeLoopStart;
@@ -256,9 +314,7 @@ void handleBreathe() {
 void colourWipeDown(uint32_t c, uint16_t wait) {
 
   for (uint16_t k = 0; k < LEDSTRIPS; k++){
-    
     int start = (NUMPIXELS/LEDSTRIPS) *k;
-    // Serial.println(k);
 
     for (uint16_t j = start; j < start + LEDSPERSTRIP; j++){
       strip.setPixelColor(j, c);
@@ -271,11 +327,8 @@ void colourWipeDown(uint32_t c, uint16_t wait) {
 
 // Fade light each step strip
 void colourWipeUp(uint32_t c, uint16_t wait) {
-
   for (uint16_t k = LEDSTRIPS; k > 0; k--){
-
     int start = NUMPIXELS/LEDSTRIPS *k;
-    // Serial.println(k);
 
     int x = start;
     do
@@ -294,7 +347,6 @@ void clearStrip(){
   for (int l=0; l<NUMPIXELS; l++){
     strip.setPixelColor(l, strip.Color(0,0,0));
   }
-
   strip.show(); // This sends the updated pixel's to the hardware.  
 }
 
