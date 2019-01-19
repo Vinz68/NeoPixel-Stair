@@ -95,10 +95,10 @@ void setup() {
     Serial.println( LDRValue );
   }
   if (BREATHELEDS>0) {
-        Serial.println("Breathe effect is enabled, on each strip, on pixels:");
+        Serial.print("Breathe effect is enabled, on each strip, on pixels: ");
 
         if (BREATHELEDS>1) { 
-          Serial.print("0 to ");
+          Serial.println("  0 to ");
           Serial.print(BREATHELEDS-1);
           Serial.print(" and ");
           Serial.print(LEDSPERSTRIP-BREATHELEDS);
@@ -224,7 +224,6 @@ void handleBreathe() {
 
       // Turn on first "BREATHELEDS" of each stripm with the breathe color.
       for (uint16_t i = startFirst; i < endFirst; i++) {
-            Serial.println(i); 
             strip.setPixelColor(i, strip.Color(0,0,breathe));
       }
 
@@ -233,7 +232,6 @@ void handleBreathe() {
 
       // Turn on last "BREATHELEDS" of each stripm with the breathe color.
       for (uint16_t i = startLast; i < endLast; i++) {
-            Serial.println(i); 
             strip.setPixelColor(i, strip.Color(0,0,breathe));
       }
     }
