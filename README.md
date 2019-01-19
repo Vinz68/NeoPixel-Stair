@@ -15,22 +15,22 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 ```javascript
 
 // Which pin on the Arduino is connected to the NeoPixels?
-#define PIN             5        // Pin used for the NeoPixels
+#define PIN             5       // Pin used for the NeoPixels
 
 // How many NeoPixels are attached to the Arduino?
-#define LEDSPERSTRIP    36       // Number of leds per strip
-#define LEDSTRIPS       16       // Number of stair steps (led strips)
-#define BREATHELEDS     1         // Number of leds used in breathe function. 
-                                  // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
-                                  //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
+#define LEDSPERSTRIP    36      // Number of leds per strip
+#define LEDSTRIPS       16      // Number of stair steps (led strips)
+#define BREATHELEDS     1       // Number of leds used in breathe function. 
+                                // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
+                                //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
 
 // Configuration of the Passive Infrared (PIR)
-int alarmPinTop = 10;             // PIR at the top of the stairs
-int alarmPinBottom = 11;          // PIR at the bottom of the stairs
+int alarmPinTop = 10;           // PIR at the top of the stairs
+int alarmPinBottom = 11;        // PIR at the bottom of the stairs
 
 // Configuration of the Light dependent resistor (LDR)
-bool useLDR = true;               // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
-int LDRSensor = A0;               // Light dependent resistor, Analog Input line                                   
+bool useLDR = true;             // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
+int LDRSensor = A0;             // Light dependent resistor, Analog Input line                                   
 ```
 
 
@@ -38,7 +38,7 @@ int LDRSensor = A0;               // Light dependent resistor, Analog Input line
 ```javascript
 
 //-------------------------------------------------------------------------
-// Tuning part for the Breathe effect en turn-on and turn-off speed 
+// Tuning part for the Breathe effect and turn-on and turn-off speed 
 //-------------------------------------------------------------------------
 int change          = 2;         // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
 int breathe         = 25;        // used in 'breathing' the LED's.
