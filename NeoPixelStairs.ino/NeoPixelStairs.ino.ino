@@ -3,12 +3,14 @@
 // 06-01-2019 Vinz68  Initial release     
 // 11-01-2019 Vinz68  LDR sensor added    
 // 13-01-2019 Vinz68  Beathe function more configurable (number of used leds, BREATHELEDS)
+// 19-01-2019 Vinz68  LDR value smoothing added. 
+//                    This reduces the sensor-Walk-by and value spikes, so operates better during daylight.
+//                    Usage of internal led (pin 13) removed.
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
-
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 // Configuration of the NeoPixel output
@@ -49,15 +51,12 @@ int LDRThreshold = 750;           // Only switch on LED's at night when LDR sens
 // Define the number of samples to keep track of. The higher the number, the more the readings will be smoothed, but the slower the output will respond to the input. 
 // For our use case (determine the ammout of light) smoothing is good, so walk-by the LDR sensor or a sensor read spike is ingnored. 
 const int numReadings = 100;
-int readings[numReadings];      // the readings from the analog input
-int readIndex = 0;              // the index of the current reading
-int total = 0;                  // the running total
-int average = 0;                // the average
+int readings[numReadings];        // the readings from the analog input
+int readIndex = 0;                // the index of the current reading
+long total = 0;                   // the running total
+int average = 0;                  // the average
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-// Other Input/output
-int ledPin = 13;                  // LED on the arduino board flashes when PIR activated
 
 // Set up Variables for the needed program logic (DO NOT TOUCH THESE!)
 unsigned long timeOut = 0;        // timestamp to remember when the PIR was triggered.
@@ -93,9 +92,8 @@ void setup() {
   clearStrip();             // Initialize all pixels to 'off', and do strip.show()
 
     // Configure the used digital input & output
-  pinMode(ledPin, OUTPUT); // initilise the onboard pin 13 LED as an indicator
-  pinMode(alarmPinTop, INPUT_PULLUP); // for PIR at top of stairs initialise the input pin and use the internal restistor
-  pinMode(alarmPinBottom, INPUT_PULLUP); // for PIR at bottom of stairs initialise the input pin and use the internal restistor
+  pinMode(alarmPinTop, INPUT_PULLUP);     // for PIR at top of stairs initialise the input pin and use the internal restistor
+  pinMode(alarmPinBottom, INPUT_PULLUP);  // for PIR at bottom of stairs initialise the input pin and use the internal restistor
 
   
   Serial.begin (9600);      // only required for debugging. Output some settings in the Serial Monitor Window 
@@ -125,7 +123,6 @@ void setup() {
     Serial.print( average );
     Serial.print(" Determine from number of samples: ");
     Serial.println( numReadings );
-
   }
   if (BREATHELEDS>0) {
         Serial.print("Breathe effect is enabled, on each strip, on pixels: ");
@@ -144,7 +141,6 @@ void setup() {
         }
   }
   Serial.println("-------------------------------------------------"); 
-
 
 
   delay (2000); // it takes the sensor 2 seconds to scan the area around it before it can detect infrared presence.
