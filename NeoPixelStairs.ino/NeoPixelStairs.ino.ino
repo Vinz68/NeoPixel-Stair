@@ -21,7 +21,7 @@
 #define LEDSPERSTRIP    36        // Number of leds per strip
 
 #define NUMPIXELS       LEDSTRIPS*LEDSPERSTRIP 
-#define BREATHELEDS     1         // Number of leds used in breathe function. 
+#define BREATHELEDS     2         // Number of leds used in breathe function. 
                                   // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
                                   //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
                                   // NOTE:  Minimal value = 0       (= no breathe function)
@@ -45,8 +45,8 @@ int alarmValueBottom = LOW;       // Variable to hold the PIR status
 // Configuration of the Light dependent resistor (LDR)
 bool useLDR = true;               // flag, when true the program uses the LDR, set to "false" if you don't have a LDR sensor.
 int LDRSensor = A0;               // Light dependent resistor, Analog Input line 
-int LDRValue = 0;                 // Variable to hold the current measured LDR value
-int LDRThreshold = 750;           // Only switch on LED's at night when LDR senses low light conditions - you may have to change this value for your circumstances!
+long LDRValue = 0;                // Variable to hold the current measured LDR value
+long LDRThreshold = 600;          // Only switch on LED's at night when LDR senses low light conditions - you may have to change this value for your circumstances!
 
 // Define the number of samples to keep track of. The higher the number, the more the readings will be smoothed, but the slower the output will respond to the input. 
 // For our use case (determine the ammout of light) smoothing is good, so walk-by the LDR sensor or a sensor read spike is ingnored. 
@@ -54,7 +54,7 @@ const int numReadings = 100;
 int readings[numReadings];        // the readings from the analog input
 int readIndex = 0;                // the index of the current reading
 long total = 0;                   // the running total
-int average = 0;                  // the average
+long average = 0;                 // the average
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -76,6 +76,7 @@ int downUp = 0;                   // main program mode, The possible values are:
 //-------------------------------------------------------------------------------------------------------
 // TUNING PART: for the Breathe effect, turn-on and turn-off speed and LDR sesonr usage
 //-------------------------------------------------------------------------------------------------------
+bool useBreatheDuringDaylight = true;   // flag, when true the program will use the breathe function also during daylight (when useLDR=true)
 int change = 2;                 // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
 int breathe = 25;               // used in 'breathing' the LED's.
 int turnOnSpeed = 300;          // speed to turn on next led-strip, in msec between next strip
@@ -114,21 +115,23 @@ void setup() {
       total = total + readings[thisReading];
     }
     // ... and calculate the average value of [numReadings] samples.
-    average = total / numReadings;
+    LDRValue = total / numReadings;
 
     Serial.print("LDR used on analog input pin [");
     Serial.print(LDRSensor);
     Serial.println("]");
-    Serial.print("LDR average value =");
-    Serial.print( average );
-    Serial.print(" Determine from number of samples: ");
+    Serial.print("Determine number of samples for average value: ");
     Serial.println( numReadings );
+    Serial.print("LDR average value = ");
+    Serial.println( LDRValue );
+    Serial.print("Stairs will work when LDR average value <= ");
+    Serial.println(LDRThreshold);
   }
   if (BREATHELEDS>0) {
-        Serial.print("Breathe effect is enabled, on each strip, on pixels: ");
+        Serial.println("Breathe effect is enabled, on each strip, on pixels: ");
 
         if (BREATHELEDS>1) { 
-          Serial.println("  0 to ");
+          Serial.print("  0 to ");
           Serial.print(BREATHELEDS-1);
           Serial.print(" and ");
           Serial.print(LEDSPERSTRIP-BREATHELEDS);
@@ -161,18 +164,26 @@ void loop() {
     // For finetuning, show the LDR value, so the LDRThreshold can be determined ; once it works disable the next statement with '//'
     // Serial.println(LDRValue); 
 
-    // Only switch on LED's at night when LDR senses low light conditions 
-    if (LDRValue < LDRThreshold) {   
-      // There is enough light, the stairs/ledstips will not be activated
+    // Check if LDR senses low light conditions ...
+    if (LDRValue >= LDRThreshold) {   
+      // There is enough light, the stairs/ledstips will not be activated (readPIRInputs = false)
       readPIRInputs = false;
+
+      // Show that stair will not turn on / on PIR detection, due to LDR logic (daylight mode detected)
+      // NOTE: These "Serial" statement can be deleted when everything works fine.
+      //       its here for finetuning the LDRThreshold value, which you should configure in the begin of this file.
+      Serial.println("LDR detected Daylight according to LDRThreshold configuration.");
+      Serial.print("LDR Average value = ");
+      Serial.println(LDRValue);
     }
     else {
+      // It is dark enough. The stairs/ledstips will be activated. (readPIRInputs = true)
       alarmValueTop = LOW;
       alarmValueBottom = LOW;
     }
   }
 
-  // Read the PIR inputs 
+  // Read the PIR inputs ?
   if (readPIRInputs) {
     alarmValueTop = digitalRead(alarmPinTop); // Constantly poll the PIR at the top of the stairs
     alarmValueBottom = digitalRead(alarmPinBottom); // Constantly poll the PIR at the bottom of the stairs
@@ -208,11 +219,14 @@ void loop() {
 
   // Enable Breathe Effect when needed.
   if (downUp==0) {          // Currently no activity on the stairs ? (in idle mode, not turned (or turning) on or off ?) 
-    if (readPIRInputs) {    // Enable "breathe" only when the it is dark enough (LDR value)
+
+    // Check if PIRs are read (not when it is dark), or when breathe function must also work during the day
+    if ( (readPIRInputs) || (useBreatheDuringDaylight) ) {    
+      // Enable "breathe" function
       handleBreathe();      // so....Enable the cool "breathe effect" of the led strip lights  
     } 
     else {
-      clearStrip();	    // during daylight all leds turned off.
+      clearStrip();	        // during daylight all leds turned off.
     }
   }
   else if (downUp==5) {     // eventually the stairs led lights will be turned off again (mode=5)
@@ -221,7 +235,7 @@ void loop() {
   }
 }
 
-int readAverageLDR() {
+long readAverageLDR() {
 
   // Subtract the last reading:
   total = total - readings[readIndex];
@@ -241,7 +255,7 @@ int readAverageLDR() {
     readIndex = 0;
   }
 
-  // Xalculate the average:
+  // Calculate the average:
   average = total / numReadings;
 
   return (average);
@@ -252,7 +266,7 @@ void handleBreathe() {
   // Blue value changes
   breathe = breathe + change;
 
-  //Bbreathe the LED from 20 = off to 100 = fairly bright, change values if needed
+  //Breathe the LED from 20 = off to 100 = fairly bright, change values if needed
   if ( (breathe >= 100 || breathe <= 20) ) {
   
     change = -change;         // Toggle the value to increase/decrease the breathe value
