@@ -6,6 +6,7 @@
 // 19-01-2019 Vinz68  LDR value smoothing added. 
 //                    This reduces the sensor-Walk-by and value spikes, so operates better during daylight.
 //                    Usage of internal led (pin 13) removed.
+// 29-01-2021 Vinz68  Added the initial brighness value as setting 
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -26,6 +27,9 @@
                                   //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
                                   // NOTE:  Minimal value = 0       (= no breathe function)
                                   //        Maximum value = LEDSPERSTRIP / 2  (= all leds used in the breathe function)
+
+#define BRIGHTNESS      35        // Adjust brightness of the leds here 
+
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -55,9 +59,9 @@ int readings[numReadings];        // the readings from the analog input
 int readIndex = 0;                // the index of the current reading
 long total = 0;                   // the running total
 long average = 0;                 // the average
+
+
 // -------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 // Set up Variables for the needed program logic (DO NOT TOUCH THESE!)
 unsigned long timeOut = 0;        // timestamp to remember when the PIR was triggered.
 unsigned long timeLoopStart = 0;  // timestamp to remember when loop has started. used to determine the end-delay (keeps loop running in same intervals)
@@ -87,10 +91,10 @@ int keepLedsOffTime = 1500;     // keep leds off for at least .. msec.
 
 void setup() {
 
-  strip.begin();            // This initializes the NeoPixel library.
+  strip.begin();                    // This initializes the NeoPixel library.
   
-  strip.setBrightness(35);  // Adjust brightness here
-  clearStrip();             // Initialize all pixels to 'off', and do strip.show()
+  strip.setBrightness(BRIGHTNESS);  // Sets the brightness of the LEDs (change 'BRIGHTNESS' defined value when you need to change it)
+  clearStrip();                     // Initialize all pixels to 'off', and do strip.show()
 
     // Configure the used digital input & output
   pinMode(alarmPinTop, INPUT_PULLUP);     // for PIR at top of stairs initialise the input pin and use the internal restistor
