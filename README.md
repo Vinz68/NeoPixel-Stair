@@ -23,10 +23,7 @@ Stair LedLights, using NeoPixel Ledstrips and an Arduino.
 // How many NeoPixels are attached to the Arduino?
 #define LEDSPERSTRIP    36    // Number of leds per strip
 #define LEDSTRIPS       16    // Number of stair steps (led strips)
-#define BREATHELEDS     1     // Number of leds used in breathe function. 
-                              // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
-                              //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
-#define BRIGHTNESS      35    // Adjust brightness of the leds here 
+#define BRIGHTNESS      35    // Brightness setting of the leds. Higher value gives more brightness 
 
 // Configuration of the Passive Infrared (PIR)
 int alarmPinTop = 10;         // PIR at the top of the stairs
@@ -48,17 +45,24 @@ long LDRThreshold = 600;      // Only switch on LED's at night when LDR senses l
 //-------------------------------------------------------------------------
 // Tuning part for the Breathe effect and turn-on and turn-off speed 
 //-------------------------------------------------------------------------
-int change          = 2;         // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
-int breathe         = 25;        // used in 'breathing' the LED's.
-int turnOnSpeed     = 250;       // speed to turn on next led-strip, in msec between next strip
-int turnOffSpeed    = 100;       // speed to turn on next led-strip, in msec between next strip
-int keepLedsOnTime  = 18000;     // keep leds on for at least .. msec.
-int keepLedsOffTime = 1500;      // keep leds off for at least .. msec.
+int change          = 2;      // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
+int breathe         = 25;     // used in 'breathing' the LED's.
+int turnOnSpeed     = 250;    // speed to turn on next led-strip, in msec between next strip
+int turnOffSpeed    = 100;    // speed to turn on next led-strip, in msec between next strip
+int keepLedsOnTime  = 18000;  // keep leds on for at least .. msec.
+int keepLedsOffTime = 1500;   // keep leds off for at least .. msec.
+
+#define BREATHELEDS     1     // Number of leds used in breathe function. 
+                              // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
+                              // so with setting the first and last leds would be used for the breathe function.
+
 ```
 
 
-### Tip
+### Tip & connection details
 Using the Serial monitor, via tools->Serial monitor (or Ctl-Shift-M), you can view the serial output and verify your configuration.
+
+[Connection Details](https://content.instructables.com/ORIG/FOD/XLFY/IGTY8XVX/FODXLFYIGTY8XVX.png?auto=webp&frame=1&fit=bounds&md=e0c5a610a4fb2ea89a45d56e3d678e9a)
 
 
 ## NeoPixel-BreathingRings - functions

@@ -20,16 +20,8 @@
 // How many NeoPixels are attached to the Arduino ?
 #define LEDSTRIPS       16        // Number of stair steps (led strips)
 #define LEDSPERSTRIP    36        // Number of leds per strip
-
 #define NUMPIXELS       LEDSTRIPS*LEDSPERSTRIP 
-#define BREATHELEDS     2         // Number of leds used in breathe function. 
-                                  // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
-                                  //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
-                                  // NOTE:  Minimal value = 0       (= no breathe function)
-                                  //        Maximum value = LEDSPERSTRIP / 2  (= all leds used in the breathe function)
-
 #define BRIGHTNESS      35        // Adjust brightness of the leds here 
-
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -60,6 +52,21 @@ int readIndex = 0;                // the index of the current reading
 long total = 0;                   // the running total
 long average = 0;                 // the average
 
+//-------------------------------------------------------------------------------------------------------
+// TUNING PART: for the Breathe effect, turn-on and turn-off speed and LDR sesonr usage
+bool useBreatheDuringDaylight = true;   // flag, when true the program will use the breathe function also during daylight (when useLDR=true)
+int change = 2;                 // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
+int breathe = 25;               // used in 'breathing' the LED's.
+int turnOnSpeed = 300;          // speed to turn on next led-strip, in msec between next strip
+int turnOffSpeed = 200;         // speed to turn off next led-strip, in msec between next strip
+int keepLedsOnTime = 18000;     // keep leds on for at least .. msec.
+int keepLedsOffTime = 1500;     // keep leds off for at least .. msec.
+#define BREATHELEDS     2         // Number of leds used in breathe function. 
+                                  // NOTE:  The number indicates the number of Begin Leds and Last leds per strip 
+                                  //        so with setting = "1", the first and last leds of the ledstrip would be used for the breathe function.
+                                  // NOTE:  Minimal value = 0       (= no breathe function)
+                                  //        Maximum value = LEDSPERSTRIP / 2  (= all leds used in the breathe function)
+
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 // Set up Variables for the needed program logic (DO NOT TOUCH THESE!)
@@ -75,18 +82,6 @@ int downUp = 0;                   // main program mode, The possible values are:
                                   //  3   =   Turning leds off, from top to down
                                   //  4   =   Turninf leds off, from bottom to up
                                   //  5   =   All leds just turned off. After short time, automatically mode will be set to "0".
-
-
-//-------------------------------------------------------------------------------------------------------
-// TUNING PART: for the Breathe effect, turn-on and turn-off speed and LDR sesonr usage
-//-------------------------------------------------------------------------------------------------------
-bool useBreatheDuringDaylight = true;   // flag, when true the program will use the breathe function also during daylight (when useLDR=true)
-int change = 2;                 // used in 'breathing' the LED's , make value smalle to make it smoother, or higher to make it faster
-int breathe = 25;               // used in 'breathing' the LED's.
-int turnOnSpeed = 300;          // speed to turn on next led-strip, in msec between next strip
-int turnOffSpeed = 200;         // speed to turn off next led-strip, in msec between next strip
-int keepLedsOnTime = 18000;     // keep leds on for at least .. msec.
-int keepLedsOffTime = 1500;     // keep leds off for at least .. msec.
 
 
 void setup() {
