@@ -61,7 +61,7 @@ int keepLedsOffTime = 1500;   // keep leds off for at least .. msec.
 
 ### Tip & connection details
 Using the Serial monitor, via tools->Serial monitor (or Ctl-Shift-M), you can view the serial output and verify your configuration.
-
+The connection details of the strips, Passive Infra Red sensor and LDR sensor can be found in this image:
 [Connection Details](https://content.instructables.com/ORIG/FOD/XLFY/IGTY8XVX/FODXLFYIGTY8XVX.png?auto=webp&frame=1&fit=bounds&md=e0c5a610a4fb2ea89a45d56e3d678e9a)
 
 
